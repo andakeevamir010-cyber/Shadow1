@@ -1,13 +1,7 @@
-/*
- * Shadow Client
- * Eaglercraft 1.8.8
- * Main client-side module loader
- */
-
 (function () {
     "use strict";
 
-    const SHADOW_FILES = [
+    const files = [
         "shadow-client-config.js",
         "shadow-client-settings.js",
 
@@ -21,92 +15,78 @@
         "shadow-client-freelook.js",
         "shadow-client-keybinds.js",
 
+        "shadow-client-wasm-bridge.js",
+        "shadow-client-wasm-hooks.js",
         "shadow-client-bridge.js",
-        "shadow-client-hud-editor.js",
 
+        "shadow-client-hud-editor.js",
         "shadow-client.js",
-        "shadow-client-startup.js"
+        "shadow-client-startup.js",
+        "shadow-client-init.js"
     ];
 
-    const loaded = [];
+    let index = 0;
 
-    function loadScript(file) {
-        return new Promise(function (resolve, reject) {
-            const existing = document.querySelector(
-                'script[data-shadow-file="' + file + '"]'
+    function loadNext() {
+        if (index >= files.length) {
+            console.log(
+                "[Shadow Client] All modules loaded."
             );
 
-            if (existing) {
-                resolve();
-                return;
-            }
+            window.dispatchEvent(
+                new CustomEvent("shadow-client-loaded")
+            );
 
-            const script = document.createElement("script");
-
-            script.src = file;
-            script.async = false;
-            script.dataset.shadowFile = file;
-
-            script.onload = function () {
-                loaded.push(file);
-                console.log("[Shadow Client] Loaded: " + file);
-                resolve();
-            };
-
-            script.onerror = function () {
-                console.error("[Shadow Client] Failed to load: " + file);
-                reject(new Error("Failed to load " + file));
-            };
-
-            document.head.appendChild(script);
-        });
-    }
-
-    async function loadShadowClient() {
-        console.log("[Shadow Client] Starting...");
-
-        for (const file of SHADOW_FILES) {
-            try {
-                await loadScript(file);
-            } catch (error) {
-                console.error(
-                    "[Shadow Client] Loading stopped because of:",
-                    error
-                );
-
-                return false;
-            }
+            return;
         }
 
-        console.log(
-            "[Shadow Client] All modules loaded (" +
-            loaded.length +
-            "/" +
-            SHADOW_FILES.length +
-            ")"
-        );
+        const file = files[index++];
 
-        return true;
+        if (
+            document.querySelector(
+                'script[data-shadow-file="' + file + '"]'
+            )
+        ) {
+            loadNext();
+            return;
+        }
+
+        const script = document.createElement("script");
+
+        script.src = file;
+        script.async = false;
+        script.dataset.shadowFile = file;
+
+        script.onload = function () {
+            console.log(
+                "[Shadow Client] Loaded: " + file
+            );
+
+            loadNext();
+        };
+
+        script.onerror = function () {
+            console.error(
+                "[Shadow Client] Failed to load: " + file
+            );
+        };
+
+        document.head.appendChild(script);
     }
 
-    window.ShadowClientLoader = {
-        files: SHADOW_FILES.slice(),
-        loaded: loaded,
-
-        start: loadShadowClient
-    };
-
-    /*
-     * Start after the page has loaded.
-     */
     if (document.readyState === "loading") {
         document.addEventListener(
             "DOMContentLoaded",
-            loadShadowClient,
+            loadNext,
             { once: true }
         );
     } else {
-        loadShadowClient();
+        loadNext();
     }
+
+    window.ShadowClientLoader = {
+        files: files,
+        start: loadNext
+    };
 
 })();
