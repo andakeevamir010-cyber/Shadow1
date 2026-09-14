@@ -1,0 +1,94 @@
+/*
+ * Shadow Client
+ * Dark UI Theme
+ */
+
+#shadow-clickgui {
+    box-sizing: border-box;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+#shadow-clickgui button {
+    box-sizing: border-box;
+    outline: none;
+}
+
+#shadow-clickgui button:hover {
+    background: rgba(55, 55, 55, 0.95) !important;
+}
+
+#shadow-clickgui button:active {
+    transform: scale(0.98);
+}
+
+#shadow-hud-fps,
+#shadow-hud-cps,
+#shadow-hud-keystrokes,
+#shadow-compass {
+    box-sizing: border-box;
+    pointer-events: auto;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+/*
+ * Scrollbar
+ */
+
+#shadow-clickgui::-webkit-scrollbar {
+    width: 6px;
+}
+
+#shadow-clickgui::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.25);
+}
+
+#shadow-clickgui::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.20);
+    border-radius: 10px;
+}
+
+/*
+ * Freelook indicator
+ */
+
+body.shadow-freelook::after {
+    content: "FREELOOK";
+    position: fixed;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+
+    z-index: 1000001;
+
+    padding: 5px 10px;
+
+    background: rgba(10, 10, 10, 0.85);
+
+    border: 1px solid rgba(255, 255, 255, 0.15);
+
+    border-radius: 4px;
+
+    color: white;
+
+    font-family: Arial, sans-serif;
+    font-size: 11px;
+    font-weight: bold;
+
+    letter-spacing: 1px;
+
+    pointer-events: none;
+}
+
+/*
+ * Prevent Shadow UI from affecting
+ * Minecraft's normal page layout.
+ */
+
+#shadow-clickgui,
+#shadow-hud-fps,
+#shadow-hud-cps,
+#shadow-keystrokes,
+#shadow-compass {
+    margin: 0;
+}
