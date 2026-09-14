@@ -1,108 +1,112 @@
 /*
  * Shadow Client
- * Module Loader
- *
- * Loads the Shadow Client modules
- * in the correct order.
+ * Eaglercraft 1.8.8
+ * Main client-side module loader
  */
 
 (function () {
     "use strict";
 
-    const modules = [
+    const SHADOW_FILES = [
         "shadow-client-config.js",
+        "shadow-client-settings.js",
+
         "shadow-client-hud.js",
-        "shadow-client-cps.js",
         "shadow-client-fps.js",
+        "shadow-client-cps.js",
         "shadow-client-keystrokes.js",
         "shadow-client-compass.js",
+
         "shadow-client-clickgui.js",
-        "shadow-client-freelook.js"
+        "shadow-client-freelook.js",
+        "shadow-client-keybinds.js",
+
+        "shadow-client-bridge.js",
+        "shadow-client-hud-editor.js",
+
+        "shadow-client.js",
+        "shadow-client-startup.js"
     ];
 
-    let loaded = 0;
+    const loaded = [];
 
-    function loadModule(index) {
-        if (index >= modules.length) {
-            console.log(
-                "[Shadow Client] All modules loaded."
+    function loadScript(file) {
+        return new Promise(function (resolve, reject) {
+            const existing = document.querySelector(
+                'script[data-shadow-file="' + file + '"]'
             );
 
-            window.ShadowClientLoaded = true;
+            if (existing) {
+                resolve();
+                return;
+            }
 
-            return;
-        }
+            const script = document.createElement("script");
 
-        const script =
-            document.createElement("script");
+            script.src = file;
+            script.async = false;
+            script.dataset.shadowFile = file;
 
-        script.src =
-            modules[index];
+            script.onload = function () {
+                loaded.push(file);
+                console.log("[Shadow Client] Loaded: " + file);
+                resolve();
+            };
 
-        script.async = false;
+            script.onerror = function () {
+                console.error("[Shadow Client] Failed to load: " + file);
+                reject(new Error("Failed to load " + file));
+            };
 
-        script.onload = function () {
-            loaded++;
-
-            console.log(
-                "[Shadow Client] Loaded " +
-                modules[index] +
-                " (" +
-                loaded +
-                "/" +
-                modules.length +
-                ")"
-            );
-
-            loadModule(index + 1);
-        };
-
-        script.onerror = function () {
-            console.error(
-                "[Shadow Client] Failed to load " +
-                modules[index]
-            );
-
-            /*
-             * Continue loading the remaining
-             * modules instead of stopping everything.
-             */
-            loadModule(index + 1);
-        };
-
-        document.head.appendChild(script);
+            document.head.appendChild(script);
+        });
     }
 
-    function start() {
+    async function loadShadowClient() {
+        console.log("[Shadow Client] Starting...");
+
+        for (const file of SHADOW_FILES) {
+            try {
+                await loadScript(file);
+            } catch (error) {
+                console.error(
+                    "[Shadow Client] Loading stopped because of:",
+                    error
+                );
+
+                return false;
+            }
+        }
+
         console.log(
-            "[Shadow Client] Starting..."
+            "[Shadow Client] All modules loaded (" +
+            loaded.length +
+            "/" +
+            SHADOW_FILES.length +
+            ")"
         );
 
-        loadModule(0);
+        return true;
     }
 
     window.ShadowClientLoader = {
-        start: start,
+        files: SHADOW_FILES.slice(),
+        loaded: loaded,
 
-        getLoadedCount: function () {
-            return loaded;
-        },
-
-        getModuleCount: function () {
-            return modules.length;
-        }
+        start: loadShadowClient
     };
 
-    if (
-        document.readyState ===
-        "loading"
-    ) {
+    /*
+     * Start after the page has loaded.
+     */
+    if (document.readyState === "loading") {
         document.addEventListener(
             "DOMContentLoaded",
-            start
+            loadShadowClient,
+            { once: true }
         );
     } else {
-        start();
+        loadShadowClient();
     }
 
 })();
