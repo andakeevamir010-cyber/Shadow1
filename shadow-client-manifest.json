@@ -1,0 +1,50 @@
+{
+  "name": "Shadow Client",
+  "version": "1.0.0",
+  "minecraft": "1.8.8",
+  "runtime": "wasm",
+
+  "settings": {
+    "maxFPS": 60
+  },
+
+  "modules": [
+    {
+      "name": "FPS",
+      "enabled": true
+    },
+    {
+      "name": "CPS",
+      "enabled": true
+    },
+    {
+      "name": "Keystrokes",
+      "enabled": true
+    },
+    {
+      "name": "Compass",
+      "enabled": true
+    },
+    {
+      "name": "Freelook",
+      "enabled": true
+    }
+  ],
+
+  "hud": {
+    "movable": true,
+    "savePositions": true
+  },
+
+  "controls": {
+    "clickGUI": "ShiftRight",
+    "hudEditor": "ShiftRight+H"
+  },
+
+  "platform": {
+    "web": true,
+    "ipadOS": true,
+    "mouse": true,
+    "keyboard": true
+  }
+}
